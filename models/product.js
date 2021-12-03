@@ -1,24 +1,25 @@
 import mongoose from 'mongoose';
 const { ObjectId } = mongoose.Schema.Types;
 
-const reviewSchema = mongoose.Schema(
-  {
-    rating: { type: Number, required: true },
-    comment: { type: String, required: true },
-    user: {
-      type: ObjectId,
-      required: true,
-      ref: 'User',
-    },
-  },
-  { timestamps: true }
-);
+// const reviewSchema = mongoose.Schema(
+//   {
+//     rating: { type: Number, required: true },
+//     comment: { type: String, required: true },
+//     user: {
+//       type: ObjectId,
+//       required: true,
+//       ref: 'User',
+//     },
+//   },
+//   { timestamps: true }
+// );
 
 const productSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: [true, 'Please provide product name'],
+      maxlength: [100, 'Name can not be more than 100 characters'],
     },
     slug: {
       type: String,
@@ -27,18 +28,22 @@ const productSchema = new mongoose.Schema(
     images: Array,
     brand: {
       type: String,
-      required: true,
+      required: [true, 'Please provide product brand'],
     },
     category: {
       type: String,
-      required: true,
+      required: [true, 'Please provide product category'],
     },
     description: {
       type: String,
-      required: true,
+      required: [true, 'Please provide product description'],
+      maxlength: [1000, 'Description can not be more than 1000 characters'],
     },
-    shipping: Boolean,
-    reviews: [reviewSchema],
+    shipping: {
+      type: Boolean,
+      default: false,
+    },
+    // reviews: [reviewSchema],
     numReviews: {
       type: Number,
       default: 0,
@@ -49,12 +54,16 @@ const productSchema = new mongoose.Schema(
     },
     price: {
       type: Number,
-      required: true,
+      required: [true, 'Please provide product price'],
     },
     colors: Array,
     quantity: {
       type: Number,
       required: true,
+    },
+    featured: {
+      type: Boolean,
+      default: false,
     },
     sold: {
       type: Number,
@@ -64,6 +73,15 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Product = mongoose.model('Product', productSchema);
+productSchema.virtual('reviews', {
+  ref: 'Review',
+  localField: '_id',
+  foreignField: 'product',
+  justOne: false,
+});
 
-export default Product;
+productSchema.pre('remove', async function () {
+  await this.model('Review').deleteMany({ product: this._id });
+});
+
+export default mongoose.model('Product', productSchema);;

@@ -1,77 +1,55 @@
 import User from '../models/user.js';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
+import { StatusCodes } from 'http-status-codes';
+// import { BadRequestError, UnauthenticatedError } from '../errors/index.js';
+import CustomError from '../errors/index.js';
+import { attachCookiesToResponse } from '../utils/index.js';
+import createTokenUser from '../utils/createToken.js';
 
 export const register = async (req, res) => {
-  const { email, username, password, isAdmin } = req.body;
+  const { email, name, password } = req.body;
 
-  try {
-    // Validate data
-    let errors = {};
-    const emailUser = await User.findOne({ email });
-    const usernameUser = await User.findOne({ username });
+  const emailUser = await User.findOne({ email });
 
-    if (emailUser) errors.email = 'Email is already taken';
-    if (usernameUser) errors.username = 'Username is already taken';
-
-    if (Object.keys(errors).length > 0) {
-      return res.status(400).json(errors);
-    }
-
-    // Create the user
-    const user = await User.create({ email, username, password, isAdmin });
-
-    // errors = await validate(user);
-    // if (errors.length > 0) return res.status(400).json({ errors });
-
-    // Return the user
-    return res.json(user);
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json(err);
+  if (emailUser) {
+    throw new CustomError.BadRequestError('Email is already taken');
   }
+  // first registered user is an admin
+  const isFirstAccount = (await User.countDocuments({})) === 0;
+  const role = isFirstAccount ? 'admin' : 'user';
+
+  // Create the user
+  const user = await User.create({ email, name, password, role });
+  // Create Token User
+  const tokenUser = createTokenUser(user);
+  attachCookiesToResponse({ res, user: tokenUser });
+
+  // Return the user
+  res.status(StatusCodes.CREATED).json({ user: tokenUser });
 };
 
 export const login = async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
-  try {
-    let errors = {};
-
-    if (username === '') errors.username = 'Username must not be empty';
-    if (password === '') errors.password = 'Password must not be empty';
-    if (Object.keys(errors).length > 0) {
-      return res.status(400).json(errors);
-    }
-
-    const user = await User.findOne({ username });
-
-    if (!user) return res.status(404).json({ error: 'User not found' });
-
-    const passwordMatches = await bcrypt.compare(password, user.password);
-
-    if (!passwordMatches) {
-      return res.status(401).json({ password: 'Password is incorrect' });
-    }
-
-    const token = jwt.sign({ username }, process.env.JWT_SECRET);
-
-    res.cookie('token', token, {
-      httpOnly: true,
-      sameSite: 'none',
-      secure: true,
-      maxAge: 3600000,
-    });
-
-    return res.json(user);
-  } catch (err) {
-    console.log(err);
-    return res.json({ error: 'Something went wrong' });
+  if (!email || !password) {
+    throw new CustomError.BadRequestError('Please provide email and password');
   }
-};
 
-export const me = (req, res) => {
-  return res.json(req.user);
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new CustomError.UnauthenticatedError('Invalid Credentials');
+  }
+
+  const isPasswordMatches = user.comparePassword(password);
+
+  if (!isPasswordMatches) {
+    throw new CustomError.UnauthenticatedError('Invalid Credentials');
+  }
+
+  const tokenUser = createTokenUser(user);
+  attachCookiesToResponse({ res, user: tokenUser });
+
+  res.status(StatusCodes.OK).json({ user: tokenUser });
 };
 
 export const logout = (_, res) => {
@@ -79,8 +57,8 @@ export const logout = (_, res) => {
     httpOnly: true,
     sameSite: 'none',
     secure: true,
-    maxAge: 1,
+    expires: new Date(Date.now() + 1000),
   });
 
-  return res.status(200).json({ success: true });
+  res.status(StatusCodes.OK).json({ msg: 'user logged out!' });
 };
