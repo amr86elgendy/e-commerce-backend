@@ -1,70 +1,119 @@
 import Product from '../models/product.js';
 import { StatusCodes } from 'http-status-codes';
 import CustomError from '../errors/index.js';
+import slugify from 'slugify';
 import path from 'path';
 
-export const createProduct = async () => {};
+export const createProduct = async () => {
+  req.body.user = req.user.userId;
+  req.body.slug = slugify(req.body.name);
+
+  const product = await Product.create(req.body);
+  res.status(StatusCodes.CREATED).json({ product });
+};
 // ######################################################
 
 export const getAllProducts = async (req, res) => {
-  const { newarrival, bestseller } = req.query;
-console.log('ammmmmmmmmmmmmmmmm');
+  let { company, featured, name, sort } = req.query;
+
   const queryObject = {};
 
-  if (newarrival) {
-    queryObject.newarrival = newarrival === 'true' ? true : false;
+  if (featured) {
+    queryObject.featured = featured === 'true' ? true : false;
   }
-  if (bestseller) {
-    queryObject.bestseller = bestseller === 'true' ? true : false;
+  if (company) {
+    queryObject.company = company;
+  }
+  if (name) {
+    queryObject.name = { $regex: name, $options: 'i' };
+  }
+
+  let result = Product.find(queryObject);
+  // sort
+  if (sort) {
+    if (sort === 'createdAt') {
+      sort = '-createdAt';
+    } else if (sort === 'sold') {
+      sort = '-sold';
+    }
+    const sortList = sort.split(',').join(' ');
+    result = result.sort(sortList);
   }
   const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 4;
+  const limit = Number(req.query.limit) || 8;
   const skip = (page - 1) * limit;
-  const products = await Product.find({}).skip(skip).limit(limit);
+  result = result.skip(skip).limit(limit);
 
+  const products = await result;
   res.status(StatusCodes.OK).json({ products, count: products.length });
 };
 // ######################################################
 
 export const getSingleProduct = async (req, res) => {
-  try {
-    const { slug } = req.params;
-    console.log(req.query);
-    const product = await Product.findOne({ slug });
-    res.status(200).json(product);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ err: 'something went wrong' });
+  const { id: productId } = req.params;
+
+  const product = await Product.findOne({ _id: productId }); //.populate('reviews');
+
+  if (!product) {
+    throw new CustomError.NotFoundError(`No product with id : ${productId}`);
   }
+
+  res.status(StatusCodes.OK).json({ product });
 };
 // ######################################################
 
-export const getNewArrivalProducts = async (req, res) => {
-  try {
-    const products = await Product.find({}).sort('-createdAt').limit(6);
-    res.status(200).json(products);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ err: 'something went wrong' });
+export const updateProduct = async () => {
+  const { id: productId } = req.params;
+
+  const product = await Product.findOneAndUpdate({ _id: productId }, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!product) {
+    throw new CustomError.NotFoundError(`No product with id : ${productId}`);
   }
-}
+
+  res.status(StatusCodes.OK).json({ product });
+};
 // ######################################################
 
-export const getBestSellerProducts = async (req, res) => {
-  try {
-    const products = await Product.find({}).sort('-sold').limit(6);
-    res.status(200).json(products);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ err: 'something went wrong' });
+export const deleteProduct = async () => {
+  const { id: productId } = req.params;
+
+  const product = await Product.findOne({ _id: productId });
+
+  if (!product) {
+    throw new CustomError.NotFoundError(`No product with id : ${productId}`);
   }
-}
+
+  await product.remove();
+  res.status(StatusCodes.OK).json({ msg: 'Success! Product removed.' });
+};
 // ######################################################
 
-export const updateProduct = () => {};
-// ######################################################
+export const uploadImage = async () => {
+  if (!req.files) {
+    throw new CustomError.BadRequestError('No File Uploaded');
+  }
+  const productImage = req.files.image;
 
-export const deleteProduct = () => {};
-// ######################################################
+  if (!productImage.mimetype.startsWith('image')) {
+    throw new CustomError.BadRequestError('Please Upload Image');
+  }
 
-export const uploadImage = () => {};
+  const maxSize = 1024 * 1024;
+
+  if (productImage.size > maxSize) {
+    throw new CustomError.BadRequestError(
+      'Please upload image smaller than 1MB'
+    );
+  }
+
+  const imagePath = path.join(
+    __dirname,
+    '../public/uploads/' + `${productImage.name}`
+  );
+  await productImage.mv(imagePath);
+  res.status(StatusCodes.OK).json({ image: `/uploads/${productImage.name}` });
+};

@@ -1,6 +1,5 @@
 import User from '../models/user.js';
 import { StatusCodes } from 'http-status-codes';
-// import { BadRequestError, UnauthenticatedError } from '../errors/index.js';
 import CustomError from '../errors/index.js';
 import { attachCookiesToResponse } from '../utils/index.js';
 import createTokenUser from '../utils/createToken.js';

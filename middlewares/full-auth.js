@@ -1,7 +1,7 @@
 import CustomError from '../errors/index.js';
 import { isTokenValid } from '../utils/jwt.js';
 
-const authenticateUser = async (req, res, next) => {
+export const authenticateUser = async (req, res, next) => {
   let token;
   // check header
   const authHeader = req.headers.authorization;
@@ -31,7 +31,7 @@ const authenticateUser = async (req, res, next) => {
   }
 };
 
-const authorizeRoles = (...roles) => {
+export const authorizeRoles = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
       throw new CustomError.UnauthorizedError(
@@ -42,4 +42,3 @@ const authorizeRoles = (...roles) => {
   };
 };
 
-module.exports = { authenticateUser, authorizeRoles };

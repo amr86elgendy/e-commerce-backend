@@ -35,9 +35,9 @@ const userSchema = new mongoose.Schema(
 
 // Fire a function before doc saved to db
 userSchema.pre('save', async function () {
-  console.log('this.modifiedPaths()', this.modifiedPaths());
-  console.log('this.isModified(name)', this.isModified('name'));
-  console.log('this.isModified(password)', this.isModified('password'));
+  // console.log('this.modifiedPaths()', this.modifiedPaths());
+  // console.log('this.isModified(name)', this.isModified('name'));
+  // console.log('this.isModified(password)', this.isModified('password'));
   if (!this.isModified('password')) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);

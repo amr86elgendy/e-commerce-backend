@@ -69,8 +69,13 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    user: {
+      type: ObjectId,
+      ref: 'User',
+      required: true,
+    },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
 productSchema.virtual('reviews', {
@@ -84,4 +89,4 @@ productSchema.pre('remove', async function () {
   await this.model('Review').deleteMany({ product: this._id });
 });
 
-export default mongoose.model('Product', productSchema);;
+export default mongoose.model('Product', productSchema);

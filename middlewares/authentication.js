@@ -1,7 +1,7 @@
 import CustomError from '../errors/index.js';
 import { isTokenValid } from '../utils/index.js';
 
-const authenticateUser = async (req, res, next) => {
+export const authenticateUser = async (req, res, next) => {
   const token = req.signedCookies.token;
 
   if (!token) {
@@ -17,7 +17,7 @@ const authenticateUser = async (req, res, next) => {
   }
 };
 
-const authorizePermissions = (...roles) => {
+export const authorizePermissions = (...roles) => {
   return (req, res, next) => {
     // console.log(req.user);
     if (!roles.includes(req.user.role)) {
@@ -29,7 +29,3 @@ const authorizePermissions = (...roles) => {
   };
 };
 
-export {
-  authenticateUser,
-  authorizePermissions,
-};

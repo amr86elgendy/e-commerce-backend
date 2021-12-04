@@ -1,4 +1,4 @@
-export default function trim(req, res, next) {
+const trim = (req, res, next) => {
   const exceptions = ['password'];
 
   Object.keys(req.body).forEach((key) => {
@@ -9,3 +9,5 @@ export default function trim(req, res, next) {
 
   next();
 };
+
+export default trim;

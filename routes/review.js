@@ -1,10 +1,22 @@
 import { Router } from 'express';
 const router = Router();
 
-import { login, logout, register } from '../controllers/auth.js';
+import { authenticateUser } from '../middlewares/authentication.js';
 
-router.post('/register', register);
-router.post('/login', login);
-router.get('/logout', logout);
+import {
+  createReview,
+  getAllReviews,
+  getSingleReview,
+  updateReview,
+  deleteReview,
+} from '../controllers/review.js';
+
+router.route('/').post(authenticateUser, createReview).get(getAllReviews);
+
+router
+  .route('/:id')
+  .get(getSingleReview)
+  .patch(authenticateUser, updateReview)
+  .delete(authenticateUser, deleteReview);
 
 export default router;

@@ -2,8 +2,11 @@ import express from 'express';
 import 'express-async-errors';
 import dotenv from 'dotenv';
 import connectDb from './config/db.js';
+
+// import packages
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import fileUpload from 'express-fileupload';
 
 // import Routes
 import authRoutes from './routes/auth.js';
@@ -12,7 +15,7 @@ import userRoutes from './routes/user.js';
 import reviewRoutes from './routes/review.js';
 import orderRoutes from './routes/order.js';
 
-// import Middlewares
+// import custo Middlewares
 import trim from './middlewares/trim.js';
 import notFoundMiddleware from './middlewares/not-found.js';
 import errorHandlerMiddleware from './middlewares/error-handler.js';
@@ -34,7 +37,8 @@ app.use(
 app.use(express.json());
 app.use(trim);
 app.use(cookieParser(process.env.JWT_SECRET));
-app.use(express.static('./uploads'));
+app.use(express.static('./public'));
+app.use(fileUpload()); // When you upload a file, the file will be accessible from req.files
 
 // Use Routes
 app.use('/api/auth', authRoutes);
