@@ -39,7 +39,7 @@ export const login = async (req, res) => {
     throw new CustomError.UnauthenticatedError('Invalid Credentials');
   }
 
-  const isPasswordMatches = user.comparePassword(password);
+  const isPasswordMatches = await user.comparePassword(password);
 
   if (!isPasswordMatches) {
     throw new CustomError.UnauthenticatedError('Invalid Credentials');

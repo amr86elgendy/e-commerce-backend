@@ -12,7 +12,7 @@ export const isTokenValid = ({ token }) => jwt.verify(token, process.env.JWT_SEC
 export const attachCookiesToResponse = ({ res, user }) => {
   
   const token = createJWT({ payload: user });
-console.log(token);
+
   const oneDay = 1000 * 60 * 60 * 24;
 
   res.cookie('token', token, {
@@ -20,7 +20,7 @@ console.log(token);
     sameSite: 'none',
     expires: new Date(Date.now() + oneDay),
     secure: process.env.NODE_ENV === 'production',
-    // signed: true,
+    signed: true,
   });
 };
 

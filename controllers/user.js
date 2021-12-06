@@ -8,7 +8,6 @@ import {
 } from '../utils/index.js';
 
 export const getAllUsers = async (req, res) => {
-  console.log(req.user);
   const users = await User.find({ role: 'user' }).select('-password');
   res.status(StatusCodes.OK).json({ users });
 };
@@ -65,4 +64,3 @@ export const updateUserPassword = async (req, res) => {
   await user.save();
   res.status(StatusCodes.OK).json({ msg: 'Success! Password Updated.' });
 };
-

@@ -25,7 +25,7 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    images: Array,
+    images: [String],
     brand: {
       type: String,
       required: [true, 'Please provide product brand'],
@@ -39,7 +39,7 @@ const productSchema = new mongoose.Schema(
       required: [true, 'Please provide product description'],
       maxlength: [1000, 'Description can not be more than 1000 characters'],
     },
-    shipping: {
+    freeShipping: {
       type: Boolean,
       default: false,
     },
@@ -48,7 +48,7 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    rating: {
+    averageRating: {
       type: Number,
       default: 0,
     },
@@ -56,7 +56,14 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'Please provide product price'],
     },
-    colors: Array,
+    colors: {
+      type: [String],
+      required: true,
+    },
+    sizes: {
+      type: [String],
+      required: true,
+    },
     quantity: {
       type: Number,
       required: true,
