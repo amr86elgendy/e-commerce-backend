@@ -49,6 +49,7 @@ export const getAllProducts = async (req, res) => {
   }
 
   const products = await result;
+  
   res.status(StatusCodes.OK).json({ products, count: products.length });
 };
 
@@ -68,7 +69,7 @@ export const getSingleProduct = async (req, res) => {
 
 // ######################################################
 
-export const updateProduct = async () => {
+export const updateProduct = async (req, res) => {
   const { id: productId } = req.params;
 
   const product = await Product.findOneAndUpdate({ _id: productId }, req.body, {
@@ -85,7 +86,7 @@ export const updateProduct = async () => {
 
 // ######################################################
 
-export const deleteProduct = async () => {
+export const deleteProduct = async (req, res) => {
   const { id: productId } = req.params;
 
   const product = await Product.findOne({ _id: productId });
@@ -122,7 +123,7 @@ export const uploadImage = async (req, res) => {
     dirname,
     './public/uploads/' + `${productImage.name}`
   );
-  console.log(imagePath);
+  
   await productImage.mv(imagePath);
   res.status(StatusCodes.OK).json({ image: `/uploads/${productImage.name}` });
 };

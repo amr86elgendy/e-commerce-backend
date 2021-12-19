@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import CustomError from '../errors/index.js';
 import { attachCookiesToResponse } from '../utils/index.js';
 import createTokenUser from '../utils/createToken.js';
+import { createJWT } from '../utils/jwt.js';
 
 export const register = async (req, res) => {
   const { email, name, password } = req.body;
@@ -46,16 +47,15 @@ export const login = async (req, res) => {
   }
 
   const tokenUser = createTokenUser(user);
+  const token = createJWT({ payload: tokenUser });
   attachCookiesToResponse({ res, user: tokenUser });
 
-  res.status(StatusCodes.OK).json({ user: tokenUser });
+  res.status(StatusCodes.OK).json({ user: tokenUser, token });
 };
 
 export const logout = (_, res) => {
   res.cookie('token', '', {
     httpOnly: true,
-    sameSite: 'none',
-    secure: true,
     expires: new Date(Date.now() + 1000),
   });
 
