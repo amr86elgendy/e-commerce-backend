@@ -35,7 +35,7 @@ app.use(cookieParser(process.env.JWT_SECRET));
 app.use(
   cors({
     credentials: true,
-    origin: ['https://elgendy-admin-dashboard.vercel.app'],
+    origin: ['https://elgendy-admin-dashboard.vercel.app', 'http://localhost:3000'],
   })
 );
 app.use(express.static('./public'));
