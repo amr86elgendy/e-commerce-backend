@@ -32,9 +32,12 @@ app.enable('trust proxy');
 app.use(express.json());
 app.use(trim);
 app.use(cookieParser(process.env.JWT_SECRET));
-app.use(cors({
-  credentials: true,
-}));
+app.use(
+  cors({
+    credentials: true,
+    origin: ['https://elgendy-ecommerce.herokuapp.com'],
+  })
+);
 app.use(express.static('./public'));
 app.use(fileUpload()); // When you upload a file, the file will be accessible from req.files
 
