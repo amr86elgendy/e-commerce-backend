@@ -35,7 +35,7 @@ app.use(cookieParser(process.env.JWT_SECRET));
 app.use(
   cors({
     credentials: true,
-    origin: ['https://elgendy-ecommerce.herokuapp.com'],
+    origin: ['https://elgendy-admin-dashboard.vercel.app'],
   })
 );
 app.use(express.static('./public'));

@@ -19,8 +19,8 @@ export const attachCookiesToResponse = ({ res, user }) => {
     httpOnly: true,
     expires: new Date(Date.now() + oneDay),
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'none',
-    // domain: 'https://elgendy-admin-dashboard.vercel.app/',
+    // sameSite: 'none',
+    // domain: 'elgendy-admin-dashboard',
     signed: true,
   });
 };
