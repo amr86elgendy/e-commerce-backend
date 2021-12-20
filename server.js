@@ -28,16 +28,18 @@ const app = express();
 
 // middlewares
 app.enable('trust proxy');
-
-app.use(express.json());
-app.use(trim);
-app.use(cookieParser(process.env.JWT_SECRET));
 app.use(
   cors({
     credentials: true,
-    origin: ['https://elgendy-admin-dashboard.vercel.app', 'http://localhost:3000'],
+    origin: [
+      'https://elgendy-admin-dashboard.vercel.app',
+      'http://localhost:3000',
+    ],
   })
 );
+app.use(express.json());
+app.use(trim);
+app.use(cookieParser(process.env.JWT_SECRET));
 app.use(express.static('./public'));
 app.use(fileUpload()); // When you upload a file, the file will be accessible from req.files
 

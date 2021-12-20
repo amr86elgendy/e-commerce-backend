@@ -19,8 +19,7 @@ export const attachCookiesToResponse = ({ res, user }) => {
     httpOnly: true,
     expires: new Date(Date.now() + oneDay),
     secure: process.env.NODE_ENV === 'production',
-    // sameSite: 'none',
-    // domain: 'elgendy-admin-dashboard',
+    sameSite: 'none',
     signed: true,
   });
 };
