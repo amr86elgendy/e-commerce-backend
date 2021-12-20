@@ -2,7 +2,7 @@ import CustomError from '../errors/index.js';
 import { isTokenValid } from '../utils/index.js';
 
 export const authenticateUser = async (req, res, next) => {
-  const token = req.signedCookies.token;
+  const token = req.cookies.token;
   
   if (!token) {
     throw new CustomError.UnauthenticatedError('Authentication Invalid');
