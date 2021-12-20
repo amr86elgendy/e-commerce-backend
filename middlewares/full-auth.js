@@ -4,7 +4,7 @@ import { isTokenValid } from '../utils/jwt.js';
 export const authenticateUser = async (req, res, next) => {
   let token;
   // check header
-  
+
   const authHeader = req.headers.authorization;
   
   if (authHeader && authHeader.startsWith('Bearer')) {
@@ -16,19 +16,14 @@ export const authenticateUser = async (req, res, next) => {
   }
 
   if (!token) {
-    console.log('sjkkkkkkdhfjkf',token);
     throw new CustomError.UnauthenticatedError('Authentication invalid');
   }
-  
+
   try {
-    const payload = isTokenValid({token});
+    const { name, userId, role } = isTokenValid({ token });
 
     // Attach the user and his permissions to the req object
-    req.user = {
-      name: payload.name,
-      userId: payload.userId,
-      role: payload.role,
-    };
+    req.user = { name, userId, role };
 
     next();
   } catch (error) {
@@ -37,7 +32,6 @@ export const authenticateUser = async (req, res, next) => {
 };
 
 export const authorizePermissions = (...roles) => {
-  console.log('roleshhhhhhhhhhhhhhhhhhhh');
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
       throw new CustomError.UnauthorizedError(
@@ -47,4 +41,3 @@ export const authorizePermissions = (...roles) => {
     next();
   };
 };
-

@@ -4,7 +4,7 @@ const router = Router();
 import {
   authenticateUser,
   authorizePermissions,
-} from '../middlewares/authentication.js';
+} from '../middlewares/full-auth.js';
 import {
   getAllUsers,
   getSingleUser,

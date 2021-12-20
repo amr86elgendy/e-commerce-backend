@@ -2,7 +2,7 @@ import { Router } from 'express';
 import {
   authenticateUser,
   authorizePermissions,
-} from '../middlewares/authentication.js';
+} from '../middlewares/full-auth.js';
 import {
   createProduct,
   getAllProducts,
