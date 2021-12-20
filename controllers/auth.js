@@ -21,10 +21,11 @@ export const register = async (req, res) => {
   const user = await User.create({ email, name, password, role });
   // Create Token User
   const tokenUser = createTokenUser(user);
+  const token = createJWT({ payload: tokenUser });
   attachCookiesToResponse({ res, user: tokenUser });
 
   // Return the user
-  res.status(StatusCodes.CREATED).json({ user: tokenUser });
+  res.status(StatusCodes.CREATED).json({ user: tokenUser, token });
 };
 
 export const login = async (req, res) => {
