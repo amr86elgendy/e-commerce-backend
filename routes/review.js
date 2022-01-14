@@ -1,7 +1,7 @@
 import { Router } from 'express';
 const router = Router();
 
-import { authenticateUser } from '../middlewares/authentication.js';
+import { authenticateUser } from '../middlewares/full-auth.js';
 
 import {
   createReview,

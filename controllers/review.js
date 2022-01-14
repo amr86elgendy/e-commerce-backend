@@ -29,14 +29,16 @@ export const createReview = async (req, res) => {
   const review = await Review.create(req.body);
   res.status(StatusCodes.CREATED).json({ review });
 };
+
 export const getAllReviews = async (req, res) => {
   const reviews = await Review.find({}).populate({
     path: 'product',
-    select: 'name company price',
+    select: 'name category price',
   });
 
   res.status(StatusCodes.OK).json({ reviews, count: reviews.length });
 };
+
 export const getSingleReview = async (req, res) => {
   const { id: reviewId } = req.params;
 
@@ -48,6 +50,7 @@ export const getSingleReview = async (req, res) => {
 
   res.status(StatusCodes.OK).json({ review });
 };
+
 export const updateReview = async (req, res) => {
   const { id: reviewId } = req.params;
   const { rating, title, comment } = req.body;
@@ -67,6 +70,7 @@ export const updateReview = async (req, res) => {
   await review.save();
   res.status(StatusCodes.OK).json({ review });
 };
+
 export const deleteReview = async (req, res) => {
   const { id: reviewId } = req.params;
 
@@ -81,6 +85,7 @@ export const deleteReview = async (req, res) => {
   res.status(StatusCodes.OK).json({ msg: 'Success! Review removed' });
 };
 
+// if you decide to not use virtual
 export const getSingleProductReviews = async (req, res) => {
   const { id: productId } = req.params;
   const reviews = await Review.find({ product: productId });

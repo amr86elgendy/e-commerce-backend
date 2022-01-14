@@ -43,7 +43,6 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    // reviews: [reviewSchema],
     numReviews: {
       type: Number,
       default: 0,
@@ -85,6 +84,7 @@ const productSchema = new mongoose.Schema(
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
+// Set key(reviews) to product object when api call it
 productSchema.virtual('reviews', {
   ref: 'Review',
   localField: '_id',

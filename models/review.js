@@ -8,12 +8,12 @@ const reviewSchema = mongoose.Schema(
       max: 5,
       required: [true, 'Please provide rating'],
     },
-    title: {
-      type: String,
-      trim: true,
-      required: [true, 'Please provide review title'],
-      maxlength: 100,
-    },
+    // title: {
+    //   type: String,
+    //   trim: true,
+    //   required: [true, 'Please provide review title'],
+    //   maxlength: 100,
+    // },
     comment: {
       type: String,
       required: [true, 'Please provide review text'],
@@ -31,16 +31,19 @@ const reviewSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
+// to make sure the user can leave only one review per product 
 reviewSchema.index({ product: 1, user: 1 }, { unique: true });
 
+// to calculate averageRating an numberOfReviews for specific product
 reviewSchema.statics.calculateAverageRating = async function (productId) {
+  
   const result = await this.aggregate([
     { $match: { product: productId } },
     {
       $group: {
         _id: null,
         averageRating: { $avg: '$rating' },
-        numOfReviews: { $sum: 1 },
+        numReviews: { $sum: 1 },
       },
     },
   ]);
@@ -50,7 +53,7 @@ reviewSchema.statics.calculateAverageRating = async function (productId) {
       { _id: productId },
       {
         averageRating: Math.ceil(result[0]?.averageRating || 0),
-        numOfReviews: result[0]?.numOfReviews || 0,
+        numReviews: result[0]?.numReviews || 0,
       }
     );
   } catch (error) {

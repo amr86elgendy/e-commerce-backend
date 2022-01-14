@@ -49,7 +49,7 @@ export const getAllProducts = async (req, res) => {
   }
 
   const products = await result;
-  
+
   res.status(StatusCodes.OK).json({ products, count: products.length });
 };
 
@@ -58,7 +58,10 @@ export const getAllProducts = async (req, res) => {
 export const getSingleProduct = async (req, res) => {
   const { id: productId } = req.params;
 
-  const product = await Product.findOne({ _id: productId }); //.populate('reviews');
+  const product = await Product.findOne({ _id: productId }).populate({
+    path: 'reviews',
+    populate: { path: 'user', select: 'name' },
+  }); // virtuals
 
   if (!product) {
     throw new CustomError.NotFoundError(`No product with id : ${productId}`);
@@ -123,7 +126,7 @@ export const uploadImage = async (req, res) => {
     dirname,
     './public/uploads/' + `${productImage.name}`
   );
-  
+
   await productImage.mv(imagePath);
   res.status(StatusCodes.OK).json({ image: `/uploads/${productImage.name}` });
 };
