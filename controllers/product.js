@@ -42,10 +42,16 @@ export const getAllProducts = async (req, res) => {
   }
   // Pagination
   if (page && limit) {
-    const page = Number(page);
-    const limit = Number(limit);
-    const skip = (page - 1) * limit;
+    
+    page = Number(page);
+    limit = Number(limit);
+    skip = (page - 1) * limit;
     result = result.skip(skip).limit(limit);
+  }
+  // Limit only
+  if (limit && !page) {
+    limit = Number(limit);
+    result = result.limit(limit);
   }
 
   const products = await result;
