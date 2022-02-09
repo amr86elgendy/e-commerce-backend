@@ -34,6 +34,7 @@ app.use(
     origin: [
       'https://elgendy-admin-dashboard.vercel.app',
       'http://localhost:3000',
+      'https://elgendy-e-commerce.vercel.app',
     ],
   })
 );
