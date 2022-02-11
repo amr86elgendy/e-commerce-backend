@@ -7,6 +7,7 @@ import connectDb from './config/db.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import fileUpload from 'express-fileupload';
+import cloudinary from 'cloudinary';
 
 // import Routes
 import authRoutes from './routes/auth.js';
@@ -15,13 +16,19 @@ import userRoutes from './routes/user.js';
 import reviewRoutes from './routes/review.js';
 import orderRoutes from './routes/order.js';
 
-// import custo Middlewares
+// import custom Middlewares
 import trim from './middlewares/trim.js';
 import notFoundMiddleware from './middlewares/not-found.js';
 import errorHandlerMiddleware from './middlewares/error-handler.js';
 
 dotenv.config();
 connectDb();
+
+cloudinary.v2.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET,
+});
 
 // init App
 const app = express();
@@ -42,7 +49,7 @@ app.use(express.json());
 app.use(trim);
 app.use(cookieParser());
 app.use(express.static('./public'));
-app.use(fileUpload()); // When you upload a file, the file will be accessible from req.files
+app.use(fileUpload({ useTempFiles: true })); // When you upload a file, the file will be accessible from req.files
 
 // Use Routes
 app.use('/api/auth', authRoutes);

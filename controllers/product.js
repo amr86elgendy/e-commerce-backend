@@ -3,6 +3,8 @@ import { StatusCodes } from 'http-status-codes';
 import CustomError from '../errors/index.js';
 import slugify from 'slugify';
 import path from 'path';
+import fs from 'fs'
+import cloudinary from 'cloudinary';
 
 export const createProduct = async (req, res) => {
   req.body.user = req.user.userId;
@@ -110,7 +112,7 @@ export const deleteProduct = async (req, res) => {
 
 // ######################################################
 
-export const uploadImage = async (req, res) => {
+export const uploadImageLocal = async (req, res) => {
   if (!req.files) {
     throw new CustomError.BadRequestError('No File Uploaded');
   }
@@ -135,4 +137,18 @@ export const uploadImage = async (req, res) => {
 
   await productImage.mv(imagePath);
   res.status(StatusCodes.OK).json({ image: `/uploads/${productImage.name}` });
+};
+
+
+// ######################################################
+
+export const uploadImage = async (req, res) => {
+  const result = await cloudinary.v2.uploader.upload(
+    req.files.image.tempFilePath, { use_filename: true, folder: 'elgendy-ecommerce'}
+  );
+  
+  fs.unlinkSync(req.files.image.tempFilePath);
+
+  res.status(StatusCodes.OK).json({ image: result.secure_url });
+  console.log(result);
 };
